@@ -725,25 +725,26 @@ if __name__ == "__main__":
 
     # Create and run simulation
     test = Simulation(
-        ntime=3000,          # enough time to see jump + landing
-        mu_s=0.8,            # high friction → strong forward grip before lift-off
-        mu_k=0.6,
-        eN=0.0,              # inelastic landing → sticks on the stair
+        ntime=3000,          
+        mu_s=0.8,            # static friction
+        mu_k=0.6,            # kinetic friction
+        eN=0.0,              # restitution
         eF=0.0,
-        R=0.18,
-        m_hoop=1.0,
-        m_pendulum=0.5,      # heavy pendulum → big forces
-        l_pendulum=0.15,     # 83 % of R
+        R=0.18,              # Radius of the hoop
+        m_hoop=1.0,          # mass of the hoop
+        m_pendulum=0.5,      # mass of the pendulum
+        l_pendulum=0.15,     # length of the pendulum
         theta0=0,
-        omega0=0,            # NO initial spin
-        y0=0.18,             # touching ground (y0 = R)
-        x0=0.2,              # start at origin
-        phi_func=phi_func,
+        omega0=0,            # Initial spin for the hoop
+        y0=0.18,             
+        x0=0.2,              
+        phi_func=phi_func,    # specify phi0 and leave the velocity and acceleration as none for free fall
         phi_dot_func=phi_dot_func,
         phi_ddot_func=phi_ddot_func,
-        n_stairs=3,
-        stair_width=0.5,     # wide treads → easy to land on
-        stair_height=0.08,   # <R/2 — reachable in one hop
-        stair_x_start=0.5,   # stairs begin 0.5 m ahead
+        n_stairs=3,            # stairs
+        stair_width=0.5,    
+        stair_height=0.08,  
+        stair_x_start=0.5,   
     )
+
     test.solve()
