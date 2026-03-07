@@ -1,0 +1,1 @@
+# Hopping-Wheel-with-a-Pendulum-and-Stairs-Generalized-alpha-algorithm-
