@@ -464,7 +464,7 @@ class StairNMPCController:
         horizon_s=1.8,
         ctrl_dt_s=0.05,
         model_dt_s=0.005,
-        replan_every_s=0.12,
+        replan_every_s=0.05,
         n_samples=144,
         n_iterations=4,
         noise_sigma_frac=0.25,
