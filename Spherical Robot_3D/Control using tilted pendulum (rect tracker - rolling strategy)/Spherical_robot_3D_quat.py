@@ -240,6 +240,34 @@ def prox_coulomb_2d(x, radius):
 
 
 # ═══════════════════════════════════════════════════════════════
+#  Acceleration of a held pendulum lean
+# ═══════════════════════════════════════════════════════════════
+def lean_acceleration(lean, R, m_sphere, m_pendulum, l_pendulum, g=9.81):
+    """Steady acceleration [m/s^2] of the robot with the pendulum held at `lean`.
+
+    Moment balance about the contact point (Ivanova & Pivovarova 2013, Eq. 10
+    at constant pendulum angle), thin shell I_s = 2/3 m_s R^2:
+        a = m_p g l sin(lean) / (I_s/R + m_s R + m_p (R - l cos(lean)))
+    """
+    I_s = (2.0 / 3.0) * m_sphere * R**2
+    return (m_pendulum * g * l_pendulum * np.sin(lean)
+            / (I_s / R + m_sphere * R + m_pendulum * (R - l_pendulum * np.cos(lean))))
+
+
+def max_lean_acceleration(lean_max, R, m_sphere, m_pendulum, l_pendulum, g=9.81):
+    """Largest steady acceleration [m/s^2] allowed by a lean limit, and the lean that gives it.
+
+    a(lean) rises only up to cos(lean*) = m_p l / K, K = I_s/R + (m_s + m_p) R,
+    and falls beyond it, so the useful lean limit is min(lean_max, lean*).
+    Returns (min(lean_max, lean*), a(min(lean_max, lean*))).
+    """
+    I_s = (2.0 / 3.0) * m_sphere * R**2
+    K = I_s / R + (m_sphere + m_pendulum) * R
+    lean = min(lean_max, np.arccos(m_pendulum * l_pendulum / K))
+    return lean, lean_acceleration(lean, R, m_sphere, m_pendulum, l_pendulum, g)
+
+
+# ═══════════════════════════════════════════════════════════════
 #  Simulation
 # ═══════════════════════════════════════════════════════════════
 class Simulation:
@@ -1417,6 +1445,11 @@ if __name__ == "__main__":
     # the alpha joint can lean it, and only towards beta. Point beta along the
     # initial path heading; the pendulum still hangs straight down.
     beta0 = np.arctan2(2*np.pi*sine["amplitude"]/sine["wavelength"], 1.0) if path == "sine" else 0.0
+    # The lean limit sets the acceleration budgets: the controller limit and both
+    # profile budgets are the largest steady acceleration the lean limit allows.
+    # A limit beyond the peak lean (78.9 deg for this robot) gains nothing and is capped there.
+    lean_max, a_lean = max_lean_acceleration(np.deg2rad(35), R=0.18, m_sphere=1.0,
+                                             m_pendulum=0.5, l_pendulum=0.15)  # [rad], [m/s^2]
     sim = Simulation(
         ntime=7000,               # 28 s, enough for the 32 m sine and the 30 m rectangle
         dt=4e-3,
@@ -1441,10 +1474,10 @@ if __name__ == "__main__":
         kd_v=0.05,                # [-]     D gain of the speed PID
         k_path=8.0,               # [1/s] cross-track correction
         k_path_d=1.5,             # [-] lateral damping
-        a_cmd_max=2.0,            # [m/s^2]
-        lean_max=np.deg2rad(35),  #
-        a_lat_max=1.0,            # [m/s^2] curvature speed limit v <= sqrt(a_lat_max/|kappa|)
-        a_long_max=1.0,           # [m/s^2] speed-up / braking used by the profile
+        a_cmd_max=a_lean,         # [m/s^2] commanded acceleration limit, reached at lean_max
+        lean_max=lean_max,        # [rad]
+        a_lat_max=a_lean,         # [m/s^2] curvature speed limit v <= sqrt(a_lat_max/|kappa|)
+        a_long_max=a_lean,        # [m/s^2] speed-up / braking used by the profile
         accel_ff=True,            # along-track feedforward v dv/ds
         save_interval=200,
         log_interval=1,
