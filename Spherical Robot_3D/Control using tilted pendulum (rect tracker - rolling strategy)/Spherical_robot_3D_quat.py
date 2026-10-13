@@ -1447,7 +1447,6 @@ if __name__ == "__main__":
     beta0 = np.arctan2(2*np.pi*sine["amplitude"]/sine["wavelength"], 1.0) if path == "sine" else 0.0
     # The lean limit sets the acceleration budgets: the controller limit and both
     # profile budgets are the largest steady acceleration the lean limit allows.
-    # A limit beyond the peak lean (78.9 deg for this robot) gains nothing and is capped there.
     lean_max, a_lean = max_lean_acceleration(np.deg2rad(35), R=0.18, m_sphere=1.0,
                                              m_pendulum=0.5, l_pendulum=0.15)  # [rad], [m/s^2]
     sim = Simulation(
