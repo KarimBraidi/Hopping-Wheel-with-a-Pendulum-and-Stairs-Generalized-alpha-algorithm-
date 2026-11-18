@@ -1441,7 +1441,6 @@ if __name__ == "__main__":
         "y_offset": 0.0,       # centre line relative to initial y [m]
         "num_points": 1601,    # reference samples along the sine (about 2 cm apart)
     }
-    beta0 = np.arctan2(2*np.pi*sine["amplitude"]/sine["wavelength"], 1.0) if path == "sine" else 0.0
     # The lean limit sets the acceleration budgets: the controller limit and both
     # profile budgets are the largest steady acceleration the lean limit allows.
     lean_max, a_lean = max_lean_acceleration(np.deg2rad(35), R=0.18, m_sphere=1.0,
