@@ -1441,9 +1441,6 @@ if __name__ == "__main__":
         "y_offset": 0.0,       # centre line relative to initial y [m]
         "num_points": 1601,    # reference samples along the sine (about 2 cm apart)
     }
-    # At rest the pendulum hangs at the gimbal pole (alpha = -pi/2), where only
-    # the alpha joint can lean it, and only towards beta. Point beta along the
-    # initial path heading; the pendulum still hangs straight down.
     beta0 = np.arctan2(2*np.pi*sine["amplitude"]/sine["wavelength"], 1.0) if path == "sine" else 0.0
     # The lean limit sets the acceleration budgets: the controller limit and both
     # profile budgets are the largest steady acceleration the lean limit allows.
